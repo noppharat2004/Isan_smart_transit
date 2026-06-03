@@ -29,16 +29,30 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json();
-    console.log('Upload request body:', body);
+    console.log('Upload API - Request received');
+    console.log('Upload API - Body keys:', Object.keys(body));
+    console.log('Upload API - Image size:', body.image ? body.image.length : 0);
     
     const { status, statusNote, location, image, companyName, vehicleType, origin, destination, phoneNumbers } = body;
 
     // Validate required fields
     if (!companyName || !origin || !destination) {
       console.log('Validation failed: missing required fields');
+      console.log('companyName:', companyName);
+      console.log('origin:', origin);
+      console.log('destination:', destination);
       return NextResponse.json(
         { error: 'Missing required fields: companyName, origin, and destination' },
         { status: 400 }
+      );
+    }
+
+    // Check image size (Vercel has 4.5MB body limit)
+    if (image && image.length > 4 * 1024 * 1024) {
+      console.log('Image too large:', image.length);
+      return NextResponse.json(
+        { error: 'Image size too large. Please use a smaller image.' },
+        { status: 413 }
       );
     }
 
@@ -66,12 +80,16 @@ export async function POST(request: NextRequest) {
     console.log('New update added:', newUpdate);
 
     // Revalidate pages to show new update immediately
-    revalidatePath('/th', 'page');
-    revalidatePath('/en', 'page');
-    revalidatePath('/th/routes/[id]', 'page');
-    revalidatePath('/en/routes/[id]', 'page');
-    
-    console.log('Pages revalidated');
+    try {
+      revalidatePath('/th', 'page');
+      revalidatePath('/en', 'page');
+      revalidatePath('/th/routes/[id]', 'page');
+      revalidatePath('/en/routes/[id]', 'page');
+      console.log('Pages revalidated successfully');
+    } catch (revalidateError) {
+      console.error('Revalidation failed:', revalidateError);
+      // Continue anyway - revalidation failure shouldn't break upload
+    }
 
     return NextResponse.json({
       success: true,
@@ -84,9 +102,27 @@ export async function POST(request: NextRequest) {
       }
     });
   } catch (error) {
-    console.error('Upload failed:', error);
+    console.error('Upload API - Error occurred:', error);
+    console.error('Upload API - Error type:', typeof error);
+    console.error('Upload API - Error details:', error instanceof Error ? error.message : String(error));
+    
+    // Check for specific error types
+    if (error instanceof Error) {
+      if (error.message.includes('body too large') || error.message.includes('PayloadTooLargeError')) {
+        return NextResponse.json(
+          { error: 'Request body too large', details: 'Image size exceeds limits. Please use smaller images.' },
+          { status: 413 }
+        );
+      }
+      
+      return NextResponse.json(
+        { error: 'Upload failed', details: error.message },
+        { status: 500 }
+      );
+    }
+    
     return NextResponse.json(
-      { error: 'Upload failed', details: error instanceof Error ? error.message : 'Unknown error' },
+      { error: 'Upload failed', details: 'Unknown error occurred' },
       { status: 500 }
     );
   }

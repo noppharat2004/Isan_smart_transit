@@ -27,6 +27,7 @@ export default function UploadPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const phoneImageInputRef = useRef<HTMLInputElement>(null);
   const [currentPhoneIndex, setCurrentPhoneIndex] = useState<number>(0);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -133,11 +134,44 @@ export default function UploadPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (isSubmitting) return; // Prevent double submission
+    
+    setIsSubmitting(true);
     getLocation();
     
     console.log('Submitting upload:', formData);
     
     try {
+      // Compress main image before sending (more aggressive compression)
+      let compressedImage = selectedImage;
+      if (selectedImage) {
+        try {
+          compressedImage = await compressImage(selectedImage, 600); // Smaller size for upload
+        } catch (err) {
+          console.error('Image compression failed:', err);
+          alert('ไม่สามารถประมวลผลรูปภาพได้ กรุณาลองใหม่อีกครั้ง');
+          setIsSubmitting(false);
+          return;
+        }
+      }
+
+      // Compress phone images
+      const compressedPhoneNumbers = await Promise.all(
+        formData.phoneNumbers.map(async (phone) => {
+          if (phone.image) {
+            try {
+              const compressed = await compressImage(phone.image, 400);
+              return { ...phone, image: compressed };
+            } catch (err) {
+              console.error('Phone image compression failed:', err);
+              return { ...phone, image: null, hasImage: false };
+            }
+          }
+          return phone;
+        })
+      );
+
       // Send data to upload API
       const response = await fetch('/api/upload', {
         method: 'POST',
@@ -148,33 +182,42 @@ export default function UploadPage() {
           status: formData.status,
           statusNote: formData.statusNote,
           location: location,
-          image: selectedImage,
+          image: compressedImage,
           companyName: formData.companyName,
           vehicleType: formData.vehicleType,
           origin: formData.origin,
           destination: formData.destination,
-          phoneNumbers: formData.phoneNumbers,
+          phoneNumbers: compressedPhoneNumbers,
         }),
       });
 
       console.log('Upload response status:', response.status);
       
-      const result = await response.json();
-      console.log('Upload response:', result);
-
       if (!response.ok) {
+        const result = await response.json();
+        console.log('Upload error response:', result);
+        
         if (response.status === 429) {
-          alert('Rate limit exceeded. Please try again later.');
+          alert('อัพโหลดเกินจำนวนครั้งที่กำหนด กรุณาลองใหม่ภายหลัง');
+        } else if (response.status === 413) {
+          alert('ไฟล์รูปภาพมีขนาดใหญ่เกินไป กรุณาลองถ่ายรูปใหม่');
         } else {
-          alert('Upload failed: ' + result.error);
+          alert('อัพโหลดล้มเหลว: ' + (result.error || 'Unknown error') + (result.details ? '\n' + result.details : ''));
         }
+        setIsSubmitting(false);
         return;
       }
 
+      const result = await response.json();
+      console.log('Upload success response:', result);
+
       setStep('success');
+      setIsSubmitting(false);
     } catch (error) {
       console.error('Upload failed:', error);
-      alert('Upload failed. Please try again.');
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      alert('อัพโหลดล้มเหลว กรุณาลองใหม่อีกครั้ง\n' + errorMessage);
+      setIsSubmitting(false);
     }
   };
 
@@ -482,8 +525,15 @@ export default function UploadPage() {
                   <span>{t('upload.location_captured')}</span>
                 </div>
 
-                <Button type="submit" size="lg" className="w-full">
-                  {t('button.submit_update')}
+                <Button type="submit" size="lg" className="w-full" disabled={isSubmitting}>
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="h-5 w-5 mr-2 animate-spin" />
+                      กำลังอัพโหลด...
+                    </>
+                  ) : (
+                    t('button.submit_update')
+                  )}
                 </Button>
               </form>
             </CardContent>
