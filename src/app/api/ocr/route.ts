@@ -6,7 +6,14 @@ import { rateLimit, getClientIp } from '@/lib/rateLimiter';
 let client: any = null;
 
 try {
-  client = new vision.ImageAnnotatorClient();
+  // On Vercel, read credentials from environment variable
+  if (process.env.GOOGLE_CLOUD_CREDENTIALS) {
+    const credentials = JSON.parse(process.env.GOOGLE_CLOUD_CREDENTIALS);
+    client = new vision.ImageAnnotatorClient({ credentials });
+  } else {
+    // Local development uses GOOGLE_APPLICATION_CREDENTIALS file path
+    client = new vision.ImageAnnotatorClient();
+  }
 } catch (error) {
   console.warn('Google Cloud Vision client initialization failed, using fallback mode:', error);
 }
