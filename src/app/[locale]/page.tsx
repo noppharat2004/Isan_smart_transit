@@ -16,6 +16,8 @@ export default function Home() {
   const [selectedType, setSelectedType] = useState<VehicleType>('songthaew');
   const [scheduleUpdates, setScheduleUpdates] = useState<any[]>([]);
   const [modalImage, setModalImage] = useState<string | null>(null);
+  const [searchOrigin, setSearchOrigin] = useState('');
+  const [searchDestination, setSearchDestination] = useState('');
 
   // Fetch schedule updates from API
   useEffect(() => {
@@ -54,8 +56,26 @@ export default function Home() {
   const filteredUpdates = scheduleUpdates.filter(update => {
     // Use vehicle_type from upload data, fallback to mock route if needed
     const vehicleType = update.vehicle_type || mockRoutes.find(r => r.id === update.route_id)?.vehicle_type;
-    return vehicleType === selectedType;
+    
+    // Filter by vehicle type
+    if (vehicleType !== selectedType) return false;
+    
+    // Filter by origin and destination search
+    if (searchOrigin && !update.origin?.toLowerCase().includes(searchOrigin.toLowerCase())) {
+      return false;
+    }
+    if (searchDestination && !update.destination?.toLowerCase().includes(searchDestination.toLowerCase())) {
+      return false;
+    }
+    
+    return true;
   });
+
+  const handleSwapLocations = () => {
+    const temp = searchOrigin;
+    setSearchOrigin(searchDestination);
+    setSearchDestination(temp);
+  };
 
   const formatTime = (timeString: string | null) => {
     if (!timeString) return t('feed.frequency_based');
@@ -98,6 +118,67 @@ export default function Home() {
 
       {/* Main Content */}
       <main className="max-w-2xl mx-auto px-4 py-6">
+        {/* Search Box */}
+        <Card className="mb-6">
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-3">
+              <div className="flex-1">
+                <label className="text-xs text-gray-500 mb-1 block">ต้นทาง</label>
+                <Input
+                  type="text"
+                  placeholder="กรอกต้นทาง เช่น ขอนแก่น"
+                  value={searchOrigin}
+                  onChange={(e) => setSearchOrigin(e.target.value)}
+                  className="w-full"
+                />
+              </div>
+              
+              <button
+                onClick={handleSwapLocations}
+                className="mt-5 p-2 rounded-full hover:bg-gray-100 transition-colors"
+                title="สลับต้นทาง-ปลายทาง"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-blue-600">
+                  <polyline points="17 1 21 5 17 9"></polyline>
+                  <path d="M3 11V9a4 4 0 0 1 4-4h14"></path>
+                  <polyline points="7 23 3 19 7 15"></polyline>
+                  <path d="M21 13v2a4 4 0 0 1-4 4H3"></path>
+                </svg>
+              </button>
+              
+              <div className="flex-1">
+                <label className="text-xs text-gray-500 mb-1 block">ปลายทาง</label>
+                <Input
+                  type="text"
+                  placeholder="กรอกปลายทาง เช่น กรุงเทพ"
+                  value={searchDestination}
+                  onChange={(e) => setSearchDestination(e.target.value)}
+                  className="w-full"
+                />
+              </div>
+            </div>
+            
+            {(searchOrigin || searchDestination) && (
+              <div className="mt-3 flex items-center justify-between">
+                <p className="text-sm text-gray-600">
+                  พบ {filteredUpdates.length} เส้นทาง
+                </p>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    setSearchOrigin('');
+                    setSearchDestination('');
+                  }}
+                  className="text-blue-600"
+                >
+                  ล้างการค้นหา
+                </Button>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
         {/* Vehicle Type Tabs */}
         <Tabs value={selectedType} onValueChange={(v) => setSelectedType(v as VehicleType)} className="mb-6">
           <TabsList className="grid w-full grid-cols-3">
