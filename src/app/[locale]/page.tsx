@@ -199,7 +199,7 @@ export default function Home() {
         </Tabs>
 
         {/* Feed */}
-        <div className="space-y-6">
+        <div className="space-y-8">
           {filteredUpdates.length === 0 ? (
             <Card>
               <CardContent className="py-8 text-center text-gray-500">
