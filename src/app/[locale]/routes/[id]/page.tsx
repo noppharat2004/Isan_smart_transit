@@ -20,6 +20,8 @@ export default function RouteDetailPage() {
   const [loading, setLoading] = useState(true);
   const [imageModalOpen, setImageModalOpen] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [phoneImageModalOpen, setPhoneImageModalOpen] = useState(false);
+  const [selectedPhoneImage, setSelectedPhoneImage] = useState<string | null>(null);
 
   useEffect(() => {
     fetch('/api/schedule-updates')
@@ -106,6 +108,19 @@ export default function RouteDetailPage() {
       link.click();
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Download failed:', error);
+    }
+  };
+
+  const handleDownloadPhoneImage = async () => {
+    if (!selectedPhoneImage) return;
+    
+    try {
+      const link = document.createElement('a');
+      link.href = selectedPhoneImage;
+      link.download = `phone-number-${Date.now()}.jpg`;
+      link.click();
     } catch (error) {
       console.error('Download failed:', error);
     }
@@ -332,7 +347,15 @@ export default function RouteDetailPage() {
                         )}
                       </div>
                       {phone.image && (
-                        <img src={phone.image} alt={`Phone ${idx + 1}`} className="h-12 w-auto rounded border" />
+                        <img 
+                          src={phone.image} 
+                          alt={`Phone ${idx + 1}`} 
+                          className="h-12 w-auto rounded border cursor-pointer hover:opacity-80 transition-opacity" 
+                          onClick={() => {
+                            setSelectedPhoneImage(phone.image);
+                            setPhoneImageModalOpen(true);
+                          }}
+                        />
                       )}
                     </div>
                   </div>
@@ -388,6 +411,45 @@ export default function RouteDetailPage() {
                 className="max-w-full max-h-full object-contain rounded-lg"
                 onClick={(e) => e.stopPropagation()}
               />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Phone Image Modal */}
+      {phoneImageModalOpen && selectedPhoneImage && (
+        <div 
+          className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4"
+          onClick={() => setPhoneImageModalOpen(false)}
+        >
+          <div className="relative max-w-4xl w-full">
+            <img 
+              src={selectedPhoneImage} 
+              alt="Phone number" 
+              className="w-full h-auto max-h-[80vh] object-contain rounded-lg"
+              onClick={(e) => e.stopPropagation()}
+            />
+            <div className="absolute top-4 right-4 flex gap-2">
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleDownloadPhoneImage();
+                }}
+                className="gap-2 bg-white hover:bg-gray-100"
+              >
+                <Download className="h-4 w-4" />
+                บันทึก
+              </Button>
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => setPhoneImageModalOpen(false)}
+                className="bg-white hover:bg-gray-100"
+              >
+                ✕
+              </Button>
             </div>
           </div>
         </div>

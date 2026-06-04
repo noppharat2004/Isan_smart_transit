@@ -15,6 +15,7 @@ export default function Home() {
   const { locale, t } = useLocale();
   const [selectedType, setSelectedType] = useState<VehicleType>('songthaew');
   const [scheduleUpdates, setScheduleUpdates] = useState<any[]>([]);
+  const [modalImage, setModalImage] = useState<string | null>(null);
 
   // Fetch schedule updates from API
   useEffect(() => {
@@ -195,7 +196,16 @@ export default function Home() {
                                 </span>
                               )}
                               {phone.image && (
-                                <img src={phone.image} alt={`Phone ${idx + 1}`} className="h-8 w-auto rounded border ml-2" />
+                                <img 
+                                  src={phone.image} 
+                                  alt={`Phone ${idx + 1}`} 
+                                  className="h-8 w-auto rounded border ml-2 cursor-pointer hover:opacity-80 transition-opacity" 
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    setModalImage(phone.image);
+                                  }}
+                                />
                               )}
                             </div>
                             {phone.stops && (
@@ -233,6 +243,48 @@ export default function Home() {
           )}
         </div>
       </main>
+
+      {/* Image Modal */}
+      {modalImage && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-4"
+          onClick={() => setModalImage(null)}
+        >
+          <div className="relative max-w-4xl w-full">
+            <img 
+              src={modalImage} 
+              alt="Phone number" 
+              className="w-full h-auto max-h-[80vh] object-contain rounded-lg"
+              onClick={(e) => e.stopPropagation()}
+            />
+            <div className="absolute top-4 right-4 flex gap-2">
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  const link = document.createElement('a');
+                  link.href = modalImage;
+                  link.download = `phone-number-${Date.now()}.jpg`;
+                  link.click();
+                }}
+                className="gap-2 bg-white hover:bg-gray-100"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                บันทึก
+              </Button>
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => setModalImage(null)}
+                className="bg-white hover:bg-gray-100"
+              >
+                ✕
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
