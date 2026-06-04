@@ -147,10 +147,10 @@ export default function Home() {
               return (
                 <Link key={update.id} href={`/${locale}/routes/${update.id}`}>
                   <Card className="hover:shadow-md transition-shadow cursor-pointer">
-                    <CardHeader className="pb-3">
-                    <div className="flex items-start justify-between">
+                    <CardHeader className="pb-4">
+                    <div className="flex items-start justify-between gap-3">
                       <div className="flex-1">
-                        <CardTitle className="text-lg">{displayName}</CardTitle>
+                        <CardTitle className="text-lg mb-2">{displayName}</CardTitle>
                         <CardDescription className="flex items-center gap-2 mt-1">
                           {getVehicleIcon(vehicleType as VehicleType)}
                           <span>{vehicleTypeLabels[vehicleType] || vehicleType}</span>
@@ -162,26 +162,26 @@ export default function Home() {
                           )}
                         </CardDescription>
                       </div>
-                      <Badge className={`${getStatusColor(update.status)} text-white`}>
+                      <Badge className={`${getStatusColor(update.status)} text-white shrink-0`}>
                         {statusLabel}
                       </Badge>
                     </div>
                   </CardHeader>
-                  <CardContent className="space-y-3">
+                  <CardContent className="space-y-4">
                     {update.status_note && (
-                      <div className="flex items-center gap-2 text-sm text-gray-600 bg-yellow-50 p-2 rounded">
-                        <AlertCircle className="h-4 w-4 text-yellow-600" />
+                      <div className="flex items-start gap-2 text-sm text-gray-600 bg-yellow-50 p-3 rounded-lg">
+                        <AlertCircle className="h-4 w-4 text-yellow-600 mt-0.5 shrink-0" />
                         <span>{update.status_note}</span>
                       </div>
                     )}
                     
                     {/* Phone Numbers with Stops */}
                     {update.phone_numbers && update.phone_numbers.length > 0 && (
-                      <div className="space-y-3">
+                      <div className="space-y-2">
                         {update.phone_numbers.map((phone: any, idx: number) => (
-                          <div key={idx} className="p-2 bg-gray-50 rounded-lg">
+                          <div key={idx} className="p-3 bg-gray-50 rounded-lg border border-gray-100">
                             <div className="flex items-center gap-2 text-sm">
-                              <Phone className="h-4 w-4 text-gray-500" />
+                              <Phone className="h-4 w-4 text-gray-500 shrink-0" />
                               {phone.number && (
                                 <span 
                                   className="text-blue-600 hover:underline font-medium cursor-pointer"
@@ -195,12 +195,12 @@ export default function Home() {
                                 </span>
                               )}
                               {phone.image && (
-                                <img src={phone.image} alt={`Phone ${idx + 1}`} className="h-8 w-auto rounded border" />
+                                <img src={phone.image} alt={`Phone ${idx + 1}`} className="h-8 w-auto rounded border ml-2" />
                               )}
                             </div>
                             {phone.stops && (
-                              <div className="text-xs text-gray-500 mt-1 pl-6">
-                                ผ่าน: {phone.stops}
+                              <div className="text-xs text-gray-500 mt-2 pl-6 leading-relaxed">
+                                <span className="font-medium">ผ่าน:</span> {phone.stops}
                               </div>
                             )}
                           </div>
@@ -208,13 +208,13 @@ export default function Home() {
                       </div>
                     )}
                     
-                    <div className="flex items-center gap-2 text-sm text-gray-600">
-                      <MapPin className="h-4 w-4" />
+                    <div className="flex items-center gap-2 text-sm text-gray-600 pt-2">
+                      <MapPin className="h-4 w-4 shrink-0" />
                       <span className="font-medium">อัปเดตเมื่อ:</span>
                       <span>{getRelativeTime(update.created_at)}</span>
                     </div>
 
-                    <div className="flex items-center justify-between pt-2 border-t border-gray-100">
+                    <div className="flex items-center justify-between pt-3 border-t border-gray-200">
                       <div className="flex items-center gap-2">
                         <Button variant="ghost" size="sm" className="gap-1 text-gray-600">
                           <ThumbsUp className="h-4 w-4" />
