@@ -263,7 +263,6 @@ export default function UploadPage() {
                   ref={fileInputRef}
                   type="file"
                   accept="image/*"
-                  capture="environment"
                   onChange={handleImageSelect}
                   className="hidden"
                 />
@@ -273,7 +272,7 @@ export default function UploadPage() {
                   className="gap-2"
                 >
                   <Camera className="h-5 w-5" />
-                  {t('button.open_camera')}
+                  เลือกรูปภาพ
                 </Button>
               </div>
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
