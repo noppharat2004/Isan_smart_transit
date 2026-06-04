@@ -199,7 +199,7 @@ export default function Home() {
         </Tabs>
 
         {/* Feed */}
-        <div className="space-y-8">
+        <div className="space-y-10">
           {filteredUpdates.length === 0 ? (
             <Card>
               <CardContent className="py-8 text-center text-gray-500">
@@ -230,10 +230,10 @@ export default function Home() {
               return (
                 <Link key={update.id} href={`/${locale}/routes/${update.id}`}>
                   <Card className="hover:shadow-md transition-shadow cursor-pointer">
-                    <CardHeader className="pb-6">
+                    <CardHeader className="pb-4">
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex-1">
-                        <CardTitle className="text-lg mb-3">{displayName}</CardTitle>
+                        <CardTitle className="text-lg mb-2">{displayName}</CardTitle>
                         <CardDescription className="flex items-center gap-2 mt-1">
                           {getVehicleIcon(vehicleType as VehicleType)}
                           <span>{vehicleTypeLabels[vehicleType] || vehicleType}</span>
@@ -250,7 +250,7 @@ export default function Home() {
                       </Badge>
                     </div>
                   </CardHeader>
-                  <CardContent className="space-y-4 pb-6 pt-2">
+                  <CardContent className="space-y-4">
                     {update.status_note && (
                       <div className="flex items-start gap-2 text-sm text-gray-600 bg-yellow-50 p-3 rounded-lg">
                         <AlertCircle className="h-4 w-4 text-yellow-600 mt-0.5 shrink-0" />
@@ -300,13 +300,13 @@ export default function Home() {
                       </div>
                     )}
                     
-                    <div className="flex items-center gap-2 text-sm text-gray-600 pt-3">
+                    <div className="flex items-center gap-2 text-sm text-gray-600 pt-2">
                       <MapPin className="h-4 w-4 shrink-0" />
                       <span className="font-medium">อัปเดตเมื่อ:</span>
                       <span>{getRelativeTime(update.created_at)}</span>
                     </div>
 
-                    <div className="flex items-center justify-between pt-4 border-t border-gray-200">
+                    <div className="flex items-center justify-between pt-3 border-t border-gray-200">
                       <div className="flex items-center gap-2">
                         <Button variant="ghost" size="sm" className="gap-1 text-gray-600">
                           <ThumbsUp className="h-4 w-4" />
