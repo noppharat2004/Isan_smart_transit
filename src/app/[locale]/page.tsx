@@ -230,10 +230,10 @@ export default function Home() {
               return (
                 <Link key={update.id} href={`/${locale}/routes/${update.id}`}>
                   <Card className="hover:shadow-md transition-shadow cursor-pointer">
-                    <CardHeader className="pb-4">
+                    <CardHeader className="pb-6">
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex-1">
-                        <CardTitle className="text-lg mb-2">{displayName}</CardTitle>
+                        <CardTitle className="text-lg mb-3">{displayName}</CardTitle>
                         <CardDescription className="flex items-center gap-2 mt-1">
                           {getVehicleIcon(vehicleType as VehicleType)}
                           <span>{vehicleTypeLabels[vehicleType] || vehicleType}</span>
@@ -250,7 +250,7 @@ export default function Home() {
                       </Badge>
                     </div>
                   </CardHeader>
-                  <CardContent className="space-y-4 pb-6">
+                  <CardContent className="space-y-4 pb-6 pt-2">
                     {update.status_note && (
                       <div className="flex items-start gap-2 text-sm text-gray-600 bg-yellow-50 p-3 rounded-lg">
                         <AlertCircle className="h-4 w-4 text-yellow-600 mt-0.5 shrink-0" />
