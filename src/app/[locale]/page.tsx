@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { mockRoutes, getVehicleTypeLabel, getStatusColor } from '@/data/mockData';
 import { VehicleType } from '@/types';
 import { Camera, MapPin, ThumbsUp, Clock, Bus, Truck, Van, AlertCircle, Phone } from 'lucide-react';
+import { Input } from '@/components/ui/input';
 import Link from 'next/link';
 import { useLocale } from '@/contexts/LocaleContext';
 
