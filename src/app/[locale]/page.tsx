@@ -199,7 +199,7 @@ export default function Home() {
         </Tabs>
 
         {/* Feed */}
-        <div className="space-y-10">
+        <div className="flex flex-col gap-y-6"> 
           {filteredUpdates.length === 0 ? (
             <Card>
               <CardContent className="py-8 text-center text-gray-500">
@@ -228,7 +228,7 @@ export default function Home() {
               const statusLabel = statusLabels[update.status] || update.status;
 
               return (
-                <Link key={update.id} href={`/${locale}/routes/${update.id}`}>
+              <Link key={update.id} href={`/${locale}/routes/${update.id}`} className="block w-full">
                   <Card className="hover:shadow-md transition-shadow cursor-pointer">
                     <CardHeader className="pb-4">
                     <div className="flex items-start justify-between gap-3">
